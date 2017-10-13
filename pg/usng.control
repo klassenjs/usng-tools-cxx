@@ -1,0 +1,4 @@
+comment 'Support converting to and from USNG coordinates'
+default_version = '1.0'
+relocatable = true
+module_pathname = '$libdir/pg_usng.so'

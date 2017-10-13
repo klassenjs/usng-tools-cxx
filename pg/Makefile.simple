@@ -1,0 +1,21 @@
+PG_CONFIG = pg_config
+
+INCLUDEDIRS := -I../cpp 
+INCLUDEDIRS += -I$(shell $(PG_CONFIG) --includedir-server)
+CPPFLAGS := $(shell $(PG_CONFIG) --cppflags)
+CXXFLAGS := -std=c++14 -pedantic -Wall -Os
+
+LIBDIR := -L$(shell $(PG_CONFIG) --libdir)
+LIBINSTALL := $(shell $(PG_CONFIG) --pkglibdir)
+
+LDLIBS := -L../cpp -Wl,-Bstatic -lusng2 -Wl,-Bdynamic -lproj -lstdc++ -lm
+
+pg_usng.so: pg_usng.o
+	$(CC) -shared -o $@ pg_usng.o $(LIBDIR) $(LDLIBS)
+
+pg_usng.o: pg_usng.cc Makefile
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fpic -o $@ -c pg_usng.cc $(INCLUDEDIRS)
+
+clean:
+	$(RM) pg_usng.so pg_usng.o
+
