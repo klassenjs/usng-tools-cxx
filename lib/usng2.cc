@@ -311,9 +311,9 @@ namespace USNG2 {
 	    min_grid_square[0] = grid_square[0];
 	    min_grid_square[1] = grid_square[1];
 	  }
-	} catch (std::runtime_error) {
+	} catch (std::runtime_error &e) {
 	  ; // Ignore errors from invalid combinations
-	} catch (std::invalid_argument) {
+	} catch (std::invalid_argument &e) {
 	  ; // Ignore errors from invalid combinations
 	}
       };
@@ -602,7 +602,7 @@ namespace USNG2 {
 	    << " Calculated: " << ll_utm_zone << ll_grid_zone;
 	throw(std::runtime_error(oss.str()));
       }
-      int utm_zone_diff = abs(ll_utm_zone - this->utm_zone);
+      int utm_zone_diff = abs((int)ll_utm_zone - (int)(this->utm_zone));
       if(utm_zone_diff > 2 && utm_zone_diff < 58) { // utm_zone wraps 1..60,1
 	std::ostringstream oss;
 	oss << "USNG: calculated coordinate not in correct UTM zone! Supplied: "
