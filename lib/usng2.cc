@@ -273,11 +273,11 @@ namespace USNG2 {
   
   
   USNG
-  USNG::fromString(std::string usng_str)
+  USNG::fromString(std::string usng_str, bool strict)
   {
     auto u = USNG::parseString(usng_str);
 
-    if (!u.is_valid(false)) {
+    if (strict && !u.is_valid(false)) {
       throw(std::runtime_error("USNG: Not enough information to parse string"));
     }
     return u;

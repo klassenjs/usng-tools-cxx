@@ -59,7 +59,7 @@ namespace USNG2 {
 	 const double grid_easting, const double grid_northing,
 	 const int precision);
 
-    static USNG fromString(std::string usng);
+    static USNG fromString(std::string usng, bool strict = true);
     static USNG fromString(std::string usng, const LL84 &initial_ll);
     
     static USNG fromUTM(const UTM &utm, int precision);
