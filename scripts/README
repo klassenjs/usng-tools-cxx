@@ -1,0 +1,9 @@
+Some sample python 2.7 scripts that use the swig bindings.  
+
+These scripts need the USNGC (swig) python module and the GDAL/OGR modules in your python path.
+
+make_utm_poly_grid_100km.py: Generates 100km grid squares
+make_utm_poly_grid_100m_conus.py: Generates 100km grid sized shapefiles containing 100m grid squares.
+
+conus-100m-scripts: folder contains scripts to organize the 100m, 100km shapefiles by state.
+
