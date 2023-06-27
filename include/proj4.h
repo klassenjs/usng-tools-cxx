@@ -29,7 +29,7 @@
 #pragma once
 
 #include <string>
-#include <proj_api.h>
+#include <proj.h>
 
 namespace USNG2 {
 
@@ -39,10 +39,9 @@ namespace USNG2 {
   };
   
   class Proj4 {
-    projPJ m_proj_pj; // Note: this is really a pointer so
-                      //       need to disable copy or reference count
-    bool m_is_latlon;
-    
+    PJ *m_proj_pj; // Note: this is a pointer so
+                   //       need to disable copy or reference count
+
     std::string get_proj_error_string() const;
   public:
     Proj4(const std::string &init_string);

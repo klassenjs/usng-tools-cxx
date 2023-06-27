@@ -26,18 +26,18 @@
  */
 
 #include "proj4.h"
+#include <cmath>
+#include <memory>
 #include <stdexcept>
 
 namespace USNG2 {
   std::string
   Proj4::get_proj_error_string() const
   {
-    int *errnum = pj_get_errno_ref();
-    if (errnum != NULL) {
-      char *errstr = pj_strerrno(*errnum);
-      if (errstr != NULL) {
-	return std::string(errstr);
-      }
+    int errnum = proj_errno(m_proj_pj);
+    const char *errstr = proj_errno_string(errnum);
+    if (errstr != NULL) {
+      return std::string(errstr);
     }
     return std::string("Unknown Proj4 error");
   }
@@ -45,18 +45,16 @@ namespace USNG2 {
   
   Proj4::Proj4(const std::string &init_string) : m_proj_pj(nullptr)
   {
-    m_proj_pj = pj_init_plus(init_string.c_str());
+    m_proj_pj = proj_create(PJ_DEFAULT_CTX, init_string.c_str());
     if (m_proj_pj == nullptr)
       throw(std::runtime_error(get_proj_error_string()));
-
-    m_is_latlon = pj_is_latlong(m_proj_pj);
   }
   
 
   Proj4::~Proj4()
   {
     if (m_proj_pj != nullptr) {
-      pj_free( m_proj_pj );
+      proj_destroy(m_proj_pj);
       m_proj_pj = nullptr;
     }
   }
@@ -65,20 +63,23 @@ namespace USNG2 {
   Point
   Proj4::transform(const Proj4 &to_proj, const Point &pt) const
   {
-    double x = pt.x;
-    double y = pt.y;
-    if (m_is_latlon) {
-      x = x * DEG_TO_RAD;
-      y = y * DEG_TO_RAD;
+    PJ_COORD c = {{
+      pt.x,
+      pt.y,
+      0.0,
+      HUGE_VAL
+    }};
+    auto P = std::unique_ptr< PJ, PJ*(*)(PJ*)> (
+     proj_create_crs_to_crs_from_pj(PJ_DEFAULT_CTX, m_proj_pj, to_proj.m_proj_pj, nullptr, nullptr),
+     &proj_destroy
+    );
+    PJ_COORD c_out = proj_trans(P.get(), PJ_FWD, c);    
+
+    if (proj_errno(P.get()) != 0) {
+      int errnum = proj_errno(P.get());
+      proj_errno_reset(P.get());
+      throw(std::runtime_error(proj_errno_string(errnum)));
     }
-    int err = pj_transform(m_proj_pj, to_proj.m_proj_pj, 1, 1, &x, &y, NULL);
-    if (err != 0) {
-      throw(std::runtime_error(get_proj_error_string()));
-    }
-    if (to_proj.m_is_latlon) {
-      x = x * RAD_TO_DEG;
-      y = y * RAD_TO_DEG;
-    }
-    return Point { x, y };
+    return Point { c_out.v[0], c_out.v[1] };
   }
 }
